@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15
+
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespassword
+      - POSTGRES_DB=djangodb
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  django: 
+    image: django
+    container_name: djangoairbnb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/djangobnb_backend
+    ports:
+      - 8000:8000
+    env_file:
+      ./.env.dev
+    depends_on:
+      - db
+
+volumes: 
+  postgres_data:
+
+  
+
+    
