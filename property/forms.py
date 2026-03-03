@@ -4,15 +4,15 @@ from .models import Property
 class PropertyForm(ModelForm):
     class Meta:
         model=Property
-        fields={
+        fields=[
             'title',
             'description',
             'price_per_night',
-            'bedrooms',
-            'bathrooms',
+            'bedroom',
+            'bathroom',
             'guest',
             'country',
             'country_code',
-            'category',
+            'categories',
             'image',
-        }
+        ]
