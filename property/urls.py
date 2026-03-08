@@ -6,4 +6,5 @@ urlpatterns=[
     path('create/',api.create_property,name='api_create_property'),
     path('<uuid:pk>/',api.properties_detail,name='api_properties_detail'),
     path('<uuid:pk>/book/',api.book_property,name='api_book_property'),
+    path('<uuid:pk>/reservations/',api.properties_reservation,name='api_property_reservations')
 ]

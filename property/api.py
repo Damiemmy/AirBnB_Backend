@@ -1,19 +1,28 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view,permission_classes,authentication_classes
-from .forms import PropertyForm,Reservation
+from .forms import PropertyForm
 from rest_framework import generics
 
-from .models import Property
-from .serializers import PropertySerializer,PropertyDetailSerializer
+from .models import Property,Reservation
+from .serializers import PropertySerializer,PropertyDetailSerializer,ReservationListSerializer
 
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
-
 def properties_list(request):
     properties = Property.objects.all()
-    serializer=PropertySerializer(properties,many=True)
 
+    #
+    #Filter
+
+    landlord_id = request.GET.get('landlord_id','')
+    if landlord_id:
+       properties= properties.filter(landlord_id=landlord_id)
+
+    #
+    #
+
+    serializer=PropertySerializer(properties,many=True)
     return JsonResponse({
         'data':serializer.data
     })
@@ -25,6 +34,20 @@ def properties_detail(request,pk):
     single_property=Property.objects.get(pk=pk)
     serializer=PropertyDetailSerializer(single_property, many=False)
     return JsonResponse(serializer.data)
+
+
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def properties_reservation(request,pk):
+    single_property=Property.objects.get(pk=pk)
+    reservations=single_property.reservations.all()
+    serializer=ReservationListSerializer(reservations,many=True)
+    return JsonResponse(serializer.data,safe=False)
+    
+
+
 
 @api_view(["POST","FILES"]) 
 def create_property(request):
@@ -60,11 +83,12 @@ def book_property(request,pk):
             total_price=total_price,
             number_of_nights=number_of_nights,
             created_by=request.user
-
         )
+        return JsonResponse({"success":True})
 
 
-    except exception as e:
+
+    except Exception as e:
         print("Error",e)
         
         return JsonResponse({'success': False})
