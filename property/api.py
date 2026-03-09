@@ -1,15 +1,34 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view,permission_classes,authentication_classes
+from rest_framework_simplejwt.tokens import AccessToken
 from .forms import PropertyForm
 from rest_framework import generics
 
 from .models import Property,Reservation
 from .serializers import PropertySerializer,PropertyDetailSerializer,ReservationListSerializer
+from useraccount.models import User
 
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
 def properties_list(request):
+    #
+    # Auth
+
+    try:
+        token=request.META('HTTP_AUTHORIZATION').split('Bearer ')[1]
+        token=AccessToken(token)
+        user_id=token.payload['user_id']
+        user=User.objects.get(pk=user_id)
+    except Exception as e:
+        user=None
+    
+    print('user,', user)
+
+    #
+    #Filter
+
+    favorites=[]
     properties = Property.objects.all()
 
     #
@@ -20,8 +39,16 @@ def properties_list(request):
        properties= properties.filter(landlord_id=landlord_id)
 
     #
-    #
+    #Favourite
 
+    if user:
+        for property in properties:
+            if user in property.favorited.all():
+                favorites.append(property.id)
+
+    print('favourites',favorites)      
+    #
+    #
     serializer=PropertySerializer(properties,many=True)
     return JsonResponse({
         'data':serializer.data
@@ -94,11 +121,11 @@ def book_property(request,pk):
         return JsonResponse({'success': False})
 
 @api_view(['POST'])
-def toggle_favourit(request,pk):
+def toggle_favorite(request,pk):
     property=Property.objects.get(pk=pk)
-    if request.user in property.favourite.all():
-        properties.favourited.removed(request.user)
+    if request.user in property.favourited.all():
+        property.favourited.remove(request.user)
         return JsonResponse({'is_favourited': False})
     else:
-        properties.favourited.add(request.user)
+        property.favourite.add(request.user)
         return JsonResponse({'is_favourited': True})
