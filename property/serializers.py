@@ -5,7 +5,7 @@ from useraccount.serializers import UserDetailSerializer
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model=Property
-        fields=["id","title","price_per_night","image_url"]
+        fields=["id","title","price_per_night","favourited","image_url"]
 
 class PropertyDetailSerializer(serializers.ModelSerializer):
     landlord=UserDetailSerializer(read_only=True,many=False)
@@ -19,7 +19,6 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "guest",
             "bedroom",
             "bathroom",
-            "description",
             "landlord"
         ]
 

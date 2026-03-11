@@ -16,7 +16,7 @@ def properties_list(request):
     # Auth
 
     try:
-        token=request.META('HTTP_AUTHORIZATION').split('Bearer ')[1]
+        token = request.META.get('HTTP_AUTHORIZATION').split('Bearer ')[1]
         token=AccessToken(token)
         user_id=token.payload['user_id']
         user=User.objects.get(pk=user_id)
@@ -43,7 +43,7 @@ def properties_list(request):
 
     if user:
         for property in properties:
-            if user in property.favorited.all():
+            if user in property.favourited.all():
                 favorites.append(property.id)
 
     print('favourites',favorites)      
@@ -121,11 +121,12 @@ def book_property(request,pk):
         return JsonResponse({'success': False})
 
 @api_view(['POST'])
-def toggle_favorite(request,pk):
-    property=Property.objects.get(pk=pk)
+def toggle_favorite(request, pk):
+    property = Property.objects.get(pk=pk)
+
     if request.user in property.favourited.all():
         property.favourited.remove(request.user)
-        return JsonResponse({'is_favourited': False})
+        return JsonResponse({'is_favorite': False})
     else:
-        property.favourite.add(request.user)
-        return JsonResponse({'is_favourited': True})
+        property.favourited.add(request.user)
+        return JsonResponse({'is_favorite': True})
