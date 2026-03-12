@@ -3,6 +3,9 @@ from rest_framework.decorators import api_view,permission_classes,authentication
 from rest_framework_simplejwt.tokens import AccessToken
 from .forms import PropertyForm
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+from django.shortcuts import get_object_or_404
 
 from .models import Property,Reservation
 from .serializers import PropertySerializer,PropertyDetailSerializer,ReservationListSerializer
@@ -12,11 +15,13 @@ from useraccount.models import User
 @authentication_classes([])
 @permission_classes([])
 def properties_list(request):
+
+    print("AUTH HEADER:", request.META.get("HTTP_AUTHORIZATION"))  # 👈 Add it here
     #
     # Auth
 
     try:
-        token = request.META.get('HTTP_AUTHORIZATION').split('Bearer ')[1]
+        token=request.META['HTTP_AUTHORIZATION'].split('Bearer ')[1]
         token=AccessToken(token)
         user_id=token.payload['user_id']
         user=User.objects.get(pk=user_id)
@@ -24,6 +29,7 @@ def properties_list(request):
         user=None
     
     print('user,', user)
+    print("USER:", user)
 
     #
     #Filter
@@ -51,7 +57,8 @@ def properties_list(request):
     #
     serializer=PropertySerializer(properties,many=True)
     return JsonResponse({
-        'data':serializer.data
+        'data':serializer.data,
+        'favorites':favorites
     })
 
 @api_view(['GET'])
@@ -121,12 +128,13 @@ def book_property(request,pk):
         return JsonResponse({'success': False})
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def toggle_favorite(request, pk):
-    property = Property.objects.get(pk=pk)
+    property = get_object_or_404(Property, pk=pk)
 
     if request.user in property.favourited.all():
         property.favourited.remove(request.user)
-        return JsonResponse({'is_favorite': False})
+        return JsonResponse({'is_favourite': False})
     else:
         property.favourited.add(request.user)
-        return JsonResponse({'is_favorite': True})
+        return JsonResponse({'is_favourite': True})
