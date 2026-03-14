@@ -11,54 +11,87 @@ from .models import Property,Reservation
 from .serializers import PropertySerializer,PropertyDetailSerializer,ReservationListSerializer
 from useraccount.models import User
 
+# @api_view(['GET'])
+# @authentication_classes([])
+# @permission_classes([])
+# def properties_list(request):
+
+#     print("AUTH HEADER:", request.META.get("HTTP_AUTHORIZATION"))  # 👈 Add it here
+#     #
+#     # Auth
+
+#     try:
+#         token=request.META['HTTP_AUTHORIZATION'].split('Bearer ')[1]
+#         token=AccessToken(token)
+#         user_id=token.payload['user_id']
+#         user=User.objects.get(pk=user_id)
+#     except Exception as e:
+#         print("TOKEN ERROR:", e)   # 👈 ADD THIS
+#         user=None
+    
+#     print('user,', user)
+#     print("USER:", user)
+
+#     #
+#     #Filter
+
+#     favorites=[]
+#     properties = Property.objects.all()
+
+#     #
+#     #Filter
+
+#     landlord_id = request.GET.get('landlord_id','')
+#     if landlord_id:
+#        properties= properties.filter(landlord_id=landlord_id)
+
+#     #
+#     #Favourite
+
+#     if user:
+#         for property in properties:
+#             if user in property.favourited.all():
+#                 favorites.append(property.id)
+
+#     print('favourites',favorites)      
+#     #
+#     #
+#     serializer=PropertySerializer(properties,many=True)
+#     return JsonResponse({
+#         'data':serializer.data,
+#         'favorites':favorites
+#     })
+
+
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
+
 def properties_list(request):
 
-    print("AUTH HEADER:", request.META.get("HTTP_AUTHORIZATION"))  # 👈 Add it here
-    #
-    # Auth
+    user = request.user if request.user.is_authenticated else None
 
-    try:
-        token=request.META['HTTP_AUTHORIZATION'].split('Bearer ')[1]
-        token=AccessToken(token)
-        user_id=token.payload['user_id']
-        user=User.objects.get(pk=user_id)
-    except Exception as e:
-        user=None
-    
-    print('user,', user)
-    print("USER:", user)
-
-    #
-    #Filter
-
-    favorites=[]
+    favorites = []
     properties = Property.objects.all()
+    ##
+    is_favorites=request.GET.get('is_favorites','')
+    landlord_id = request.GET.get('landlord_id', '')
 
-    #
-    #Filter
-
-    landlord_id = request.GET.get('landlord_id','')
     if landlord_id:
-       properties= properties.filter(landlord_id=landlord_id)
+        properties = properties.filter(landlord_id=landlord_id)
 
-    #
-    #Favourite
+    if is_favorites:
+        properties=properties.filter(favourited__in=[user])
 
     if user:
-        for property in properties:
-            if user in property.favourited.all():
-                favorites.append(property.id)
+        favorites = list(
+            Property.objects.filter(favourited=user)
+            .values_list('id', flat=True)
+        )
 
-    print('favourites',favorites)      
-    #
-    #
-    serializer=PropertySerializer(properties,many=True)
+    serializer = PropertySerializer(properties, many=True)
+
     return JsonResponse({
-        'data':serializer.data,
-        'favorites':favorites
+        "data": serializer.data,
+        "favorites": favorites
     })
 
 @api_view(['GET'])
@@ -131,10 +164,10 @@ def book_property(request,pk):
 @permission_classes([IsAuthenticated])
 def toggle_favorite(request, pk):
     property = get_object_or_404(Property, pk=pk)
-
     if request.user in property.favourited.all():
         property.favourited.remove(request.user)
         return JsonResponse({'is_favourite': False})
     else:
         property.favourited.add(request.user)
         return JsonResponse({'is_favourite': True})
+    
