@@ -37,10 +37,17 @@ SITE_ID=1
 
 WEBSITE_URL='http://localhost:8000'
 
+CHANNEL_LAYERS={
+    'default':{
+        'BACKEND' : 'channels.layers.InMemoryChannelLayer'
+    }
+}
+
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -94,6 +101,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Airbnb.wsgi.application'
+ASGI_APPLICATION = 'Airbnb.asgi.application'
 
 
 
@@ -130,6 +138,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
