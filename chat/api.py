@@ -29,6 +29,6 @@ def conversations_detail(request,pk):
     conversation=request.user.conversations.get(pk=pk)
     conversation_serializer=ConversationDetailSerializer(conversation, many=False)
     return JsonResponse({
-        'conversation': conversation_serializer
+        'conversation': conversation_serializer.data
     },safe=False)
     

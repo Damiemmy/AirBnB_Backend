@@ -64,11 +64,9 @@ from useraccount.models import User
 
 
 @api_view(['GET'])
-
 def properties_list(request):
 
     user = request.user if request.user.is_authenticated else None
-
     favorites = []
     properties = Property.objects.all()
     ##
