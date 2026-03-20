@@ -37,11 +37,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self,text_data):
         print("MESSAGE RECEIVED 🔥", text_data)
         data=json.loads(text_data)
-        conversation_id= data['data']['conversation_id']
-        sent_to_id= data['data']['sent_to_id']
-        name= data['data']['name']
-        body= data['data']['body']
+        # conversation_id= data['data']['conversation_id']
+        # sent_to_id= data['data']['sent_to_id']
+        # name= data['data']['name']
+        # body= data['data']['body']
 
+        payload = data.get('data', {})
+
+        conversation_id = payload.get('conversation_id')
+        sent_to_id = payload.get('sent_to_id')
+        name = payload.get('name')
+        body = payload.get('body')
+
+        if not body:
+            return
+        print("SENDING TO GROUP 🔥")
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -50,9 +60,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'name': name
             }
         )
+        await self.save_message(conversation_id,body,sent_to_id)
 
     #sending message
     async def chat_message(self,event):
+        print("CHAT MESSAGE TRIGGERED ✅", event)
         body=event['body']
         name=event['name']
         
@@ -60,3 +72,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'body' : body,
             'name' : name
         }))
+
+    @sync_to_async
+    def save_message(self,conversation_id,body,sent_to_id):
+        user=self.scope['user']
+
+        ConversationMessage.objects.create(conversation_id=conversation_id, body=body,sent_to_id=sent_to_id,created_by=user)
