@@ -5,18 +5,19 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
-
 WORKDIR /usr/src/djangobnb_backend
 
-COPY ./requirements.txt /usr/src/djangobnb_backend/requirements.txt
+COPY ./requirements.txt .
 RUN pip install --upgrade pip
-RUN pip install -r /usr/src/djangobnb_backend/requirements.txt
-COPY ./entrypoint.sh /usr/src/djangobnb_backend/entrypoint.sh
-RUN sed -i 's/\r$//g' /usr/src/djangobnb_backend/entrypoint.sh
-RUN chmod +x /usr/src/djangobnb_backend/entrypoint.sh
+RUN pip install -r requirements.txt
 
 COPY . .
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
 EXPOSE 8000
 
-ENTRYPOINT ["/usr/src/djangobnb_backend/entrypoint.sh"]
+CMD ["gunicorn", "Airbnb.wsgi:application", "--bind", "0.0.0.0:8000"]

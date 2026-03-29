@@ -13,11 +13,19 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env.dev")
+# load_dotenv(BASE_DIR / ".env.dev")
+
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+
+if ENVIRONMENT == "production":
+    load_dotenv(BASE_DIR / ".env.prod")
+else:
+    load_dotenv(BASE_DIR / ".env.dev")
 
 
 # Quick-start development settings - unsuitable for production
@@ -28,8 +36,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get("DEBUG", 0)))
-
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost").split(" ")
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS",
+    "127.0.0.1 localhost"
+).split(" ")
 
 AUTH_USER_MODEL='useraccount.User'
 
@@ -109,16 +120,26 @@ ASGI_APPLICATION = 'Airbnb.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
+
+USE_RENDER_DB = os.environ.get("USE_RENDER_DB") == "True"
+
+if USE_RENDER_DB:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get("DATABASE_URL")
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
         'ENGINE': os.environ.get("SQL_ENGINE"),
         'NAME': os.environ.get("SQL_DATABASE"),
         'USER': os.environ.get("SQL_USER"),
         'PASSWORD': os.environ.get("SQL_PASSWORD"),
         'HOST': os.environ.get("SQL_HOST"),
         'PORT': os.environ.get("SQL_PORT"),
+        }
     }
-}
 
 
 # Password validation

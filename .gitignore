@@ -1,3 +1,14 @@
+##Prevents leaking secrets + reduces image size
+.env.dev
+.env.prod
+__pycache__/
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+.git
+##
+
 # Ignore Python virtual environments
 env/
 Backend/env/
@@ -27,3 +38,4 @@ db.sqlite3
 Thumbs.db
 .DS_Store
 Backend/lib64
+
