@@ -42,4 +42,5 @@ Twisted==25.5.0
 txaio==25.9.2
 typing_extensions==4.15.0
 urllib3==2.6.3
+whitenoise
 zope.interface==8.2

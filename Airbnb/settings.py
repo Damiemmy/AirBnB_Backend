@@ -36,11 +36,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get("DEBUG", 0)))
-# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost").split(" ")
 ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS",
     "127.0.0.1 localhost"
-).split(" ")
+).split("")
+
+CSRF_TRUSTED_ORIGINS='https://airbnb-backend-latest.onrender.com'
 
 AUTH_USER_MODEL='useraccount.User'
 
@@ -85,6 +86,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -178,7 +180,14 @@ ACCOUNT_USERNAME_REQUIRED=False
 ACCOUNT_AUTHENTICATION_METHOD="email"
 ACCOUNT_EMAIL_VERIFICATION=None
 
-
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 
 
@@ -191,12 +200,18 @@ REST_FRAMEWORK = {
     )
 }
 
+"""
 CORS_ALLOWED_ORIGINS=[
     'http://127.0.0.1:8000',
     'http://localhost:3000',
     'http://localhost:8000'
 ]
-# CORS_ALLOW_ALL_ORIGINS=True
+"""
+"""
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
+"""
+CORS_ALLOW_ALL_ORIGINS=True
 REST_AUTH={
     "USE_JWT":True,
     "JWT_AUTH_HTTPONLY": False
@@ -221,6 +236,8 @@ STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 STATIC_ROOT=BASE_DIR/'staticfiles'
 MEDIA_URL= '/media/'
 MEDIA_ROOT= BASE_DIR / 'media'
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
