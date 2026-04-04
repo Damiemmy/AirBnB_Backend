@@ -191,7 +191,14 @@ ACCOUNT_EMAIL_VERIFICATION=None
 #         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
 #     },
 # }
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 cloudinary.config(
     cloud_name=os.environ.get("CLOUD_NAME"),
