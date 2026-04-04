@@ -14,6 +14,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
 import dj_database_url
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,10 +39,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = bool(int(os.environ.get("DEBUG", 0)))
 ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS",
-    "127.0.0.1 localhost"
-).split("")
+    "127.0.0.1 localhost bookreservations.netlify.app"
+).split(" ")
 
-CSRF_TRUSTED_ORIGINS='https://airbnb-backend-latest.onrender.com'
+CSRF_TRUSTED_ORIGINS=['https://airbnb-backend-latest.onrender.com','https://bookreservations.netlify.app']
 
 AUTH_USER_MODEL='useraccount.User'
 
@@ -78,6 +79,8 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
 
     'useraccount',
     'property',
@@ -180,15 +183,21 @@ ACCOUNT_USERNAME_REQUIRED=False
 ACCOUNT_AUTHENTICATION_METHOD="email"
 ACCOUNT_EMAIL_VERIFICATION=None
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "django.core.files.storage.FileSystemStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+#     },
+# }
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUD_NAME"),
+    api_key=os.environ.get("API_KEY"),
+    api_secret=os.environ.get("API_SECRET"),
+)
 
 
 REST_FRAMEWORK = {
@@ -207,11 +216,19 @@ CORS_ALLOWED_ORIGINS=[
     'http://localhost:8000'
 ]
 """
+
+CORS_ALLOWED_ORIGINS = [ 
+    "https://bookreservations.netlify.app",
+    "http://localhost:3000"
+    ]
 """
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
 """
-CORS_ALLOW_ALL_ORIGINS=True
+'''
+CORS_ALLOW_ALL_ORIGINS=[
+    'https://bookreservations.netlify.app'
+]
+'''
 REST_AUTH={
     "USE_JWT":True,
     "JWT_AUTH_HTTPONLY": False
