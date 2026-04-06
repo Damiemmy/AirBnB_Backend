@@ -264,9 +264,16 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 STATIC_ROOT=BASE_DIR/'staticfiles'
-MEDIA_URL= '/media/'
-MEDIA_ROOT= BASE_DIR / 'media'
+# MEDIA_URL= '/media/'
+# MEDIA_ROOT= BASE_DIR / 'media'
 
+if ENVIRONMENT == "production":
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    MEDIA_URL = f"https://res.cloudinary.com/{os.environ.get('CLOUD_NAME')}/"  # Optional
+else:
+    # Use local storage in development
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type
