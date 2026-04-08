@@ -191,14 +191,16 @@ ACCOUNT_EMAIL_VERIFICATION=None
 #         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
 #     },
 # }
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
+
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+#     },
+# }
+
 
 cloudinary.config(
     cloud_name=os.environ.get("CLOUD_NAME"),
@@ -267,11 +269,24 @@ STATIC_ROOT=BASE_DIR/'staticfiles'
 # MEDIA_URL= '/media/'
 # MEDIA_ROOT= BASE_DIR / 'media'
 
+'''
 if ENVIRONMENT == "production":
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     MEDIA_URL = f"https://res.cloudinary.com/{os.environ.get('CLOUD_NAME')}/"  # Optional
 else:
     # Use local storage in development
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+'''
+
+# Storage configuration
+if ENVIRONMENT == "production":
+    # Cloudinary for media
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    # MEDIA_URL = f"https://res.cloudinary.com/{os.environ.get('CLOUD_NAME')}/"
+    MEDIA_URL = None
+else:
+    # Local media for development
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 

@@ -20,8 +20,16 @@ class Property(models.Model):
     landlord=models.ForeignKey(User, related_name="properties",on_delete=models.CASCADE)
     created_at=models.DateTimeField(auto_now_add=True)
 
+    # def image_url(self):
+    #     if self.image:
+    #         return self.image.url
+    #     return None
+    @property
     def image_url(self):
-        return f"{settings.WEBSITE_URL}{self.image.url}"
+        """Returns full URL to image, or None if missing"""
+        if self.image:
+            return self.image.url  # CloudinaryStorage already returns full URL
+        return None
 
 class Reservation(models.Model):
     id=models.UUIDField(default=uuid.uuid4,primary_key=True, editable=False)

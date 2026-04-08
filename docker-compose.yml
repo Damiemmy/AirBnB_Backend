@@ -11,7 +11,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
   django: 
     image: django
-    container_name: djangoairbnb
+    container_name: djangoairbnbn
     build:
       context: .
       dockerfile: Dockerfile
